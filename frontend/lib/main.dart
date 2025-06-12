@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'providers/user_provider.dart';
+import 'providers/image_provider.dart';
+import 'providers/comment_provider.dart';
 import 'pages/splash_page.dart';
 import 'pages/login_page.dart';
 import 'pages/register_page.dart';
@@ -8,7 +12,16 @@ import 'pages/image_detail_page.dart';
 import 'pages/profile_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()..loadUser()),
+        ChangeNotifierProvider(create: (_) => ImageProviderModel()),
+        ChangeNotifierProvider(create: (_) => CommentProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -27,7 +40,6 @@ class MyApp extends StatelessWidget {
         '/register': (context) => const RegisterPage(),
         '/home': (context) => const HomePage(),
         '/generate': (context) => const GeneratePage(),
-        // image_detail 需要传参数，建议用 onGenerateRoute 处理，这里简单示范空页面
         '/profile': (context) => const ProfilePage(),
       },
       onGenerateRoute: (settings) {
@@ -40,9 +52,8 @@ class MyApp extends StatelessWidget {
             );
           }
         }
-        return null; // 未匹配时返回 null
+        return null;
       },
     );
   }
 }
-//在页面跳转时写：Navigator.pushNamed(context, '/image_detail', arguments: {'imageId': 123});
