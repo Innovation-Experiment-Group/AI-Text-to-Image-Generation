@@ -15,6 +15,7 @@ dependencies:
   http: ^1.4.0
   intl: ^0.18.1     # 🔧 用于时间格式化 DateFormat
   shared_preferences: ^2.1.0  # 🔧 新增本地存储依赖
+  provider: ^6.1.1
 
 dev_dependencies:
   flutter_test:
