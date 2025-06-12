@@ -1,0 +1,25 @@
+name: frontend   # 🔧 你已经改了项目名称，没问题！
+
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.7.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  http: ^1.4.0
+  intl: ^0.18.1     # 🔧 用于时间格式化 DateFormat
+  shared_preferences: ^2.1.0  # 🔧 新增本地存储依赖
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
