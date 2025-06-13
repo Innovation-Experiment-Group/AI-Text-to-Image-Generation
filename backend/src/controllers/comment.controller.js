@@ -93,22 +93,16 @@ const getImageComments = catchAsync(async (req, res, next) => {
 
     // 查询图片评论
     const [comments] = await pool.execute(
-        `SELECT 
-      c.id AS commentId, 
-      c.content, 
-      c.createdAt,
-      u.id AS userId,
-      u.nickname,
-      u.avatarUrl
-     FROM 
-      comments c
-      LEFT JOIN users u ON c.userId = u.id
-     WHERE 
-      c.imageId = ?
-     ORDER BY 
-      c.createdAt DESC
-     LIMIT ? OFFSET ?`,
-        [imageId, limit, offset]
+        `SELECT
+            id AS commentId,
+            content,
+            createdAt,
+            userId
+        FROM
+            comments
+        WHERE
+            imageId = ?`,
+        [imageId]
     );
 
     // 获取总数量
