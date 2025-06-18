@@ -1,4 +1,14 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+// 1. 引入 url_launcher 包，用于打开网页
+import 'package:url_launcher/url_launcher.dart';
+
+// 辅助类，用于模拟用户数据
+class User {
+  final String nickname;
+  final String avatarUrl;
+  User({required this.nickname, required this.avatarUrl});
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -8,35 +18,114 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // 用于追踪侧边栏的选中项，默认选中 "风格选择" (index 2)
   int _selectedIndex = 2;
+  final TextEditingController _textController = TextEditingController();
+  bool _isSending = false;
 
-  // 注意：原有的 initState 中的数据获取逻辑已移除，
-  // 因为新界面不需要展示图片画廊。
+  // --- 新增状态来管理登录和提示词 ---
+  bool _isLoggedIn = false;
+  User? _currentUser;
+  int _currentPromptBatchIndex = 0;
+
+  // 模拟的多组提示词
+  final List<List<String>> _promptBatches = [
+    ['一只穿着宇航服的猫在月球上行走', '赛博朋克风格的东京雨夜街道', '梵高星空画风的埃菲尔铁塔', '水彩画：一座宁静的湖边小屋'],
+    ['中世纪骑士与巨龙的史诗对决', '一个发光的魔法森林，有精灵居住', '未来城市的悬浮汽车交通', '蒸汽朋克风格的机械猫头鹰'],
+    ['一个孩子在星空下放飞梦想的风筝', '海底失落的亚特兰蒂斯古城', '中国水墨画：云雾缭绕的黄山', '像素艺术风格的超级马里奥世界'],
+  ];
+
   @override
-  void initState() {
-    super.initState();
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  // --- 功能实现区域 ---
+
+  // 2. 完成【登录/注销逻辑】
+  void _handleLogin() {
+    setState(() {
+      _isLoggedIn = true;
+      _currentUser = User(
+        nickname: '创意探险家',
+        avatarUrl: 'https://i.pravatar.cc/150?img=5',
+      );
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('登录成功！'), backgroundColor: Colors.green),
+    );
+  }
+
+  void _handleLogout() {
+    setState(() {
+      _isLoggedIn = false;
+      _currentUser = null;
+    });
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('已注销登录。')));
+  }
+
+  // 3. 完成【发送消息逻辑】（已增强）
+  Future<void> _sendMessage() async {
+    if (!_isLoggedIn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('请先登录后再发送消息！'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+    final text = _textController.text.trim();
+    if (text.isEmpty) return;
+
+    setState(() => _isSending = true);
+    try {
+      await Future.delayed(const Duration(seconds: 2));
+      _textController.clear();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('任务已提交: "$text"'),
+            backgroundColor: Colors.blue,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSending = false);
+    }
+  }
+
+  // 4. 完成【换一批逻辑】
+  void _changePromptBatch() {
+    setState(() {
+      _currentPromptBatchIndex =
+          (_currentPromptBatchIndex + 1) % _promptBatches.length;
+    });
+  }
+
+  // 5. 完成【访问官网逻辑】
+  Future<void> _launchOfficialSite() async {
+    final Uri url = Uri.parse('https://www.flutter.dev'); // 将这里换成您的官网地址
+    if (!await launchUrl(url)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('无法打开官网链接'), backgroundColor: Colors.red),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // 这里不再需要 Provider.of<ImageProviderModel>(context)
-    // 因为 UI 已经完全改变
-
     return Scaffold(
-      // 设置整体背景色以匹配图片
       backgroundColor: const Color(0xFFF7F8FA),
       body: Row(
         children: [
-          // 左侧侧边栏
           _buildSidebar(),
-          // 右侧主内容区，用 Expanded 占据剩余空间
           Expanded(
             child: Column(
               children: [
-                // 主要内容区域，用 Expanded 占据垂直方向的剩余空间
                 Expanded(child: _buildMainContent()),
-                // 底部输入框
                 _buildBottomInputField(),
               ],
             ),
@@ -46,7 +135,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // 辅助方法：构建左侧侧边栏
+  // --- UI 构建区域（已更新） ---
+
   Widget _buildSidebar() {
     return Container(
       width: 240,
@@ -55,7 +145,7 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 顶部 Logo/标题 (根据图片做的示意)
+          // ... (顶部标题和功能入口部分未变)
           const Padding(
             padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
             child: Row(
@@ -70,7 +160,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const SizedBox(height: 20),
-          // 功能入口标题
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Text(
@@ -78,75 +167,96 @@ class _HomePageState extends State<HomePage> {
               style: TextStyle(color: Colors.grey, fontSize: 14),
             ),
           ),
-          // 菜单项
           _buildSidebarItem('首页', Icons.home_outlined, 0),
           _buildSidebarItem('云生图', Icons.cloud_outlined, 1),
-          _buildSidebarItem('风格选择', Icons.style, 2), // 使用实心图标表示选中
+          _buildSidebarItem('风格选择', Icons.style, 2),
           _buildSidebarItem('热门风格', Icons.whatshot_outlined, 3),
           _buildSidebarItem('自定义风格', Icons.edit_outlined, 4),
           _buildSidebarItem('更多风格', Icons.more_horiz_outlined, 5),
-          const Spacer(), // 占据所有可用空间，将底部内容推到底部
-          // 登录按钮
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  // TODO: 实现登录逻辑
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: 0,
-                ),
-                child: const Text('登录'),
-              ),
+          const Spacer(),
+          // 登录/注销 UI 动态变化
+          _isLoggedIn ? _buildUserInfoSection() : _buildLoginButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoginButton() {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: _handleLogin, // 调用登录方法
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            elevation: 0,
+          ),
+          child: const Text('登录'),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserInfoSection() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 10, 20),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 16,
+            backgroundImage: NetworkImage(_currentUser!.avatarUrl),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              _currentUser!.nickname,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(height: 20),
-          // 底部用户状态
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: Color(0xFFE0E0E0),
-                  // 图片中是用户头像，这里用占位符
-                  child: Icon(
-                    Icons.person_outline,
-                    size: 20,
-                    color: Colors.grey,
+          // 使用 PopupMenuButton 实现更多操作，如注销
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'logout') {
+                _handleLogout();
+              }
+            },
+            icon: const Icon(Icons.more_horiz, color: Colors.grey),
+            itemBuilder:
+                (BuildContext context) => <PopupMenuEntry<String>>[
+                  const PopupMenuItem<String>(
+                    value: 'logout',
+                    child: Text('注销'),
                   ),
-                ),
-                SizedBox(width: 10),
-                Text('未登录', style: TextStyle(color: Colors.black54)),
-                Spacer(),
-                Icon(Icons.more_horiz, color: Colors.grey),
-              ],
-            ),
+                ],
           ),
         ],
       ),
     );
   }
 
-  // 辅助方法：构建单个侧边栏菜单项
   Widget _buildSidebarItem(String title, IconData icon, int index) {
     final isSelected = _selectedIndex == index;
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedIndex = index;
-        });
-        // TODO: 在这里处理导航逻辑
+        setState(() => _selectedIndex = index);
+        // 6. 完成【导航逻辑】（使用SnackBar模拟）
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('已切换到: $title'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+        // 在真实应用中，这里会是 Navigator.pushNamed(context, '/$title');
       },
       child: Container(
+        /* ... 样式代码未变 ... */
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
@@ -174,21 +284,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // 辅助方法：构建右侧主内容区
   Widget _buildMainContent() {
     return Container(
       padding: const EdgeInsets.all(24.0),
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // "访问官网" 按钮，使用 Positioned 定位在右上角
           Positioned(
             top: 0,
             right: 0,
             child: OutlinedButton.icon(
-              onPressed: () {
-                // TODO: 实现访问官网逻辑
-              },
+              onPressed: _launchOfficialSite, // 调用访问官网方法
               icon: const Icon(Icons.public, size: 16, color: Colors.black54),
               label: const Text(
                 '访问官网',
@@ -202,20 +308,16 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          // 中心内容
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 头像
               const CircleAvatar(
                 radius: 40,
-                // 您可以替换为自己的图片资源
                 backgroundImage: NetworkImage(
                   'https://i.pravatar.cc/150?img=3',
                 ),
               ),
               const SizedBox(height: 24),
-              // 大标题
               const Text(
                 'AI云生图风格选择',
                 style: TextStyle(
@@ -225,27 +327,20 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 12),
-              // 副标题
               const Text(
                 '多种风格任您选，开启创意无限的AI云生图之旅!',
                 style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 40),
-              // 示例提示词按钮
-              _buildPromptButton('示例提示词'),
-              _buildPromptButton('示例提示词'),
-              _buildPromptButton('AI示例提示词'),
-              _buildPromptButton('风格多样，满足创意需求'),
+              // 动态生成提示词按钮
+              ..._promptBatches[_currentPromptBatchIndex]
+                  .map((prompt) => _buildPromptButton(prompt))
+                  .toList(),
               const SizedBox(height: 20),
-              // 换一批按钮
-              TextButton(
-                onPressed: () {
-                  // TODO: 实现换一批逻辑，例如重新加载提示词
-                },
-                child: const Text(
-                  '换一批',
-                  style: TextStyle(color: Colors.blue, fontSize: 14),
-                ),
+              TextButton.icon(
+                onPressed: _changePromptBatch, // 调用换一批方法
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('换一批', style: TextStyle(fontSize: 14)),
               ),
             ],
           ),
@@ -254,14 +349,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // 辅助方法：构建示例提示词按钮
   Widget _buildPromptButton(String text) {
     return Container(
-      width: 300, // 给定一个固定宽度，让按钮看起来更整齐
+      width: 300,
       margin: const EdgeInsets.symmetric(vertical: 6.0),
       child: OutlinedButton(
         onPressed: () {
-          // TODO: 实现点击提示词的逻辑
+          _textController.text = text;
+          _textController.selection = TextSelection.fromPosition(
+            TextPosition(offset: _textController.text.length),
+          );
         },
         style: OutlinedButton.styleFrom(
           foregroundColor: Colors.black54,
@@ -275,7 +372,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // 辅助方法：构建底部输入框
   Widget _buildBottomInputField() {
     return Container(
       padding: const EdgeInsets.fromLTRB(40, 10, 40, 20),
@@ -295,24 +391,29 @@ class _HomePageState extends State<HomePage> {
           children: [
             IconButton(
               icon: const Icon(Icons.close, color: Colors.grey),
-              onPressed: () {
-                // TODO: 清除输入内容
-              },
+              onPressed: () => _textController.clear(),
             ),
-            const Expanded(
+            Expanded(
               child: TextField(
+                controller: _textController,
                 decoration: InputDecoration(
-                  hintText: '登录后，可向我发送问题',
+                  hintText: _isLoggedIn ? '请输入你的创意...' : '登录后，可向我发送问题',
                   border: InputBorder.none,
-                  hintStyle: TextStyle(color: Colors.grey),
+                  hintStyle: const TextStyle(color: Colors.grey),
                 ),
+                onSubmitted: (_) => _sendMessage(),
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.send_rounded, color: Colors.blue),
-              onPressed: () {
-                // TODO: 发送消息
-              },
+              icon:
+                  _isSending
+                      ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2.5),
+                      )
+                      : const Icon(Icons.send_rounded, color: Colors.blue),
+              onPressed: _isSending ? null : _sendMessage,
             ),
           ],
         ),
