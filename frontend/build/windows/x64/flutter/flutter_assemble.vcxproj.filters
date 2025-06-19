@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Admin\Desktop\workspace\AI-Text-to-Image-Generation\frontend\build\windows\x64\CMakeFiles\e524d1788bc8cd128728a9dc782ffa19\flutter_windows.dll.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\Admin\Desktop\workspace\AI-Text-to-Image-Generation\frontend\build\windows\x64\CMakeFiles\472b955ae37780229b1b58a533e14d4d\flutter_assemble.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\Admin\Desktop\workspace\AI-Text-to-Image-Generation\frontend\windows\flutter\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\Admin\Desktop\workspace\AI-Text-to-Image-Generation\frontend\build\windows\x64\flutter\CMakeFiles\flutter_assemble" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{A5C25CDE-909E-3193-8FBD-BB7D7D44BF66}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

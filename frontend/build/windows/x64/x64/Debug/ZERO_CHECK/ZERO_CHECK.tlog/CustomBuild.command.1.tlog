@@ -1,0 +1,10 @@
+^C:\USERS\ADMIN\DESKTOP\WORKSPACE\AI-TEXT-TO-IMAGE-GENERATION\FRONTEND\BUILD\WINDOWS\X64\CMAKEFILES\FAC78CDA9FED5628D9EA4545AE059854\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/Admin/Desktop/workspace/AI-Text-to-Image-Generation/frontend/windows -BC:/Users/Admin/Desktop/workspace/AI-Text-to-Image-Generation/frontend/build/windows/x64 --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/Admin/Desktop/workspace/AI-Text-to-Image-Generation/frontend/build/windows/x64/my_web_app.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

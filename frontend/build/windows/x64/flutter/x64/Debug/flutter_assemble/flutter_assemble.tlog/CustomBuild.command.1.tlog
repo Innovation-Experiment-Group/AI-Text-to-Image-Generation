@@ -1,0 +1,28 @@
+^C:\USERS\ADMIN\DESKTOP\WORKSPACE\AI-TEXT-TO-IMAGE-GENERATION\FRONTEND\BUILD\WINDOWS\X64\CMAKEFILES\E524D1788BC8CD128728A9DC782FFA19\FLUTTER_WINDOWS.DLL.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -E env FLUTTER_ROOT=C:\flutter PROJECT_DIR=C:\Users\Admin\Desktop\workspace\AI-Text-to-Image-Generation\frontend FLUTTER_ROOT=C:\flutter FLUTTER_EPHEMERAL_DIR=C:\Users\Admin\Desktop\workspace\AI-Text-to-Image-Generation\frontend\windows\flutter\ephemeral PROJECT_DIR=C:\Users\Admin\Desktop\workspace\AI-Text-to-Image-Generation\frontend FLUTTER_TARGET=C:\Users\Admin\Desktop\workspace\AI-Text-to-Image-Generation\frontend\lib\main.dart DART_OBFUSCATION=false TRACK_WIDGET_CREATION=true TREE_SHAKE_ICONS=false PACKAGE_CONFIG=C:\Users\Admin\Desktop\workspace\AI-Text-to-Image-Generation\frontend\.dart_tool\package_config.json C:/flutter/packages/flutter_tools/bin/tool_backend.bat windows-x64 Debug
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\ADMIN\DESKTOP\WORKSPACE\AI-TEXT-TO-IMAGE-GENERATION\FRONTEND\BUILD\WINDOWS\X64\CMAKEFILES\472B955AE37780229B1B58A533E14D4D\FLUTTER_ASSEMBLE.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\ADMIN\DESKTOP\WORKSPACE\AI-TEXT-TO-IMAGE-GENERATION\FRONTEND\WINDOWS\FLUTTER\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/Admin/Desktop/workspace/AI-Text-to-Image-Generation/frontend/windows -BC:/Users/Admin/Desktop/workspace/AI-Text-to-Image-Generation/frontend/build/windows/x64 --check-stamp-file C:/Users/Admin/Desktop/workspace/AI-Text-to-Image-Generation/frontend/build/windows/x64/flutter/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
