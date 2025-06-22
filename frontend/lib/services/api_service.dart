@@ -1,3 +1,5 @@
+// lib/services/api_service.dart (已加入最终调试日志)
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../utils/constants.dart';
@@ -41,14 +43,11 @@ class ApiService {
     return _processResponse(response);
   }
 
-  // 这里是你缺失的 delete 方法
   static Future<Map<String, dynamic>> delete(String path) async {
     final url = Uri.parse('${Constants.baseUrl}$path');
     final response = await http.delete(url, headers: _headers());
     return _processResponse(response);
   }
-
-  // uploadFile 方法同样可以放这里
 
   static Future<Map<String, dynamic>> uploadFile({
     required String path,
@@ -58,25 +57,29 @@ class ApiService {
   }) async {
     final url = Uri.parse('${Constants.baseUrl}$path');
     final request = http.MultipartRequest('POST', url);
-
     if (_token != null && _token!.isNotEmpty) {
       request.headers['Authorization'] = 'Bearer $_token';
     }
-
     if (extraFields != null) {
       request.fields.addAll(extraFields);
     }
-
     final file = await http.MultipartFile.fromPath(fieldName, filePath);
     request.files.add(file);
-
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
-
     return _processResponse(response);
   }
 
   static Map<String, dynamic> _processResponse(http.Response response) {
+    // --- 这是我们添加的调试代码 ---
+    print('--- RAW API RESPONSE ---');
+    print('Status Code: ${response.statusCode}');
+    print('Request URL: ${response.request?.url}');
+    print('Headers: ${response.headers}');
+    print('Body: ${response.body}');
+    print('------------------------');
+    // --- 调试代码结束 ---
+
     try {
       final resJson = jsonDecode(response.body);
       if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -97,9 +100,7 @@ class ApiService {
 class ApiException implements Exception {
   final String message;
   final int? code;
-
   ApiException(this.message, [this.code]);
-
   @override
   String toString() => 'ApiException(code: $code, message: $message)';
 }
