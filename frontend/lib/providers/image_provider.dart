@@ -1,3 +1,5 @@
+// lib/providers/image_provider.dart (已改进，增加错误处理)
+
 import 'package:flutter/material.dart';
 import '../models/image_item.dart';
 import '../services/image_service.dart';
@@ -5,28 +7,32 @@ import '../services/image_service.dart';
 class ImageProviderModel with ChangeNotifier {
   List<ImageItem> _images = [];
   bool _loading = false;
+  String? _error; // 新增：用于存储错误信息
 
   List<ImageItem> get images => _images;
   bool get isLoading => _loading;
+  String? get error => _error; // 新增：外部可以获取错误信息
 
   /// 获取公开画廊图片
   Future<void> fetchGallery({int page = 1}) async {
     _loading = true;
+    _error = null; // 开始加载时，清除旧的错误
     notifyListeners();
     try {
       _images = await ImageService.fetchGallery(page: page);
     } catch (e) {
-      _images = [];
-      rethrow;
+      _images = []; // 出错时清空图片列表
+      _error = e.toString(); // 捕获并保存错误信息
     } finally {
       _loading = false;
-      notifyListeners();
+      notifyListeners(); // 无论成功或失败，都停止加载并通知UI更新
     }
   }
 
   /// 获取当前用户的图片（可传 isPublic 过滤）
   Future<void> fetchUserImages({int page = 1, bool? isPublic}) async {
     _loading = true;
+    _error = null;
     notifyListeners();
     try {
       _images = await ImageService.fetchUserImages(
@@ -35,12 +41,14 @@ class ImageProviderModel with ChangeNotifier {
       );
     } catch (e) {
       _images = [];
-      rethrow;
+      _error = e.toString();
     } finally {
       _loading = false;
       notifyListeners();
     }
   }
+
+  // 其他方法暂时保持不变...
 
   /// 刷新画廊
   Future<void> refreshGallery() async {
@@ -68,9 +76,12 @@ class ImageProviderModel with ChangeNotifier {
         samplingSteps: samplingSteps,
       );
       _images.insert(0, newImage);
+      _error = null;
       notifyListeners();
       return newImage;
     } catch (e) {
+      _error = e.toString();
+      notifyListeners();
       rethrow;
     }
   }
