@@ -1,3 +1,5 @@
+// lib/models/user.dart (最终修复版，对所有字段进行健壮的空值处理)
+
 class User {
   final String userId;
   final String username;
@@ -21,17 +23,24 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      userId: json['userId'],
-      username: json['username'],
-      email: json['email'],
-      nickname: json['nickname'],
-      avatarUrl: json['avatarUrl'],
-      bio: json['bio'],
+      // --- 这是修复的关键 ---
+      // 对所有不可为空的 String 字段提供默认值
+      userId: json['userId'] as String? ?? '',
+      username: json['username'] as String? ?? '',
+      email: json['email'] as String? ?? '', // 确保 email 字段有默认值
+      // 可空字段保持不变
+      nickname: json['nickname'] as String?,
+      avatarUrl: json['avatarUrl'] as String?,
+      bio: json['bio'] as String?,
+
+      // 日期字段做 tryParse 处理
       createdAt:
-          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+          json['createdAt'] != null
+              ? DateTime.tryParse(json['createdAt'].toString())
+              : null,
       lastLoginAt:
           json['lastLoginAt'] != null
-              ? DateTime.parse(json['lastLoginAt'])
+              ? DateTime.tryParse(json['lastLoginAt'].toString())
               : null,
     );
   }
