@@ -1,3 +1,5 @@
+// lib/models/image_item.dart (URL处理优化版)
+
 import 'user.dart';
 
 class ImageItem {
@@ -12,11 +14,9 @@ class ImageItem {
   final int? samplingSteps;
   final bool isPublic;
   final DateTime createdAt;
-  int? likes; // 点赞数
+  int? likes;
   final int? commentCount;
   final User? user;
-
-  // 新增点赞状态字段
   final bool liked;
 
   ImageItem({
@@ -34,30 +34,41 @@ class ImageItem {
     this.likes,
     this.commentCount,
     this.user,
-    this.liked = false, // 默认未点赞
+    this.liked = false,
   });
 
   factory ImageItem.fromJson(Map<String, dynamic> json) {
     return ImageItem(
-      imageId: json['imageId'],
-      imageUrl: json['imageUrl'],
-      thumbnailUrl: json['thumbnailUrl'],
-      prompt: json['prompt'],
-      negativePrompt: json['negativePrompt'],
-      style: json['style'],
-      width: json['width'],
-      height: json['height'],
-      samplingSteps: json['samplingSteps'],
-      isPublic: json['isPublic'],
-      createdAt: DateTime.parse(json['createdAt']),
-      likes: json['likes'],
-      commentCount: json['commentCount'],
+      // --- 这是修复后的代码 ---
+      // 如果后端返回的URL为null，则统一使用空字符串''作为默认值
+      imageId: json['imageId'] as String? ?? '',
+      imageUrl: json['imageUrl'] as String? ?? '',
+      thumbnailUrl:
+          json['thumbnailUrl'] as String? ?? json['imageUrl'] as String? ?? '',
+      prompt: json['prompt'] as String? ?? '无提示词',
+
+      negativePrompt: json['negativePrompt'] as String?,
+      style: json['style'] as String?,
+      width: json['width'] as int?,
+      height: json['height'] as int?,
+      samplingSteps: json['samplingSteps'] as int?,
+      likes: json['likes'] as int?,
+      commentCount: json['commentCount'] as int?,
+
+      isPublic: json['isPublic'] is bool ? json['isPublic'] : true,
+      liked: json['liked'] is bool ? json['liked'] : false,
+
+      createdAt:
+          json['createdAt'] != null
+              ? (DateTime.tryParse(json['createdAt'].toString()) ??
+                  DateTime.now())
+              : DateTime.now(),
+
       user: json['user'] != null ? User.fromJson(json['user']) : null,
-      liked: json['liked'] ?? false,
     );
   }
 
-  // 复制当前对象并可选择更新部分字段
+  // copyWith 方法保持不变
   ImageItem copyWith({
     String? imageId,
     String? imageUrl,
